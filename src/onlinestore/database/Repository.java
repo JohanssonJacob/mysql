@@ -165,15 +165,15 @@ public class Repository {
             pstmt.setInt(1, custid);
             pstmt.setInt(2, orderid);
             pstmt.setInt(3, shoeid);
-            pstmt.executeUpdate();
+            //pstmt.executeUpdate();
             ResultSet rs = pstmt.executeQuery();
             while (rs != null && rs.next()) {
                 String message = rs.getString("MESSAGE");
-                System.out.println("Message: " + message);
+                System.out.println("Message: " + message + "\n");
             }
             //con.commit();
-            System.out.println(custid + " " + orderid + " " + shoeid);
-            System.out.println("Shoe added to order");
+            //System.out.println(custid + " " + orderid + " " + shoeid);
+            //System.out.println("Shoe added to order");
         }catch(Exception e){
             e.printStackTrace();
         }

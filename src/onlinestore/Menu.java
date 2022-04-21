@@ -90,10 +90,10 @@ public class Menu {
 
     public int intToGetFromList(int shoeNumber) {
         int intToGet = 0;
-        if (shoeNumber == 2) {
-            intToGet = 1;
-        } else if (shoeNumber >= 4) {
-            intToGet = shoeNumber - 2;
+         if (shoeNumber == 1) {
+            intToGet = 0;
+        } else if (shoeNumber >= 2) {
+            intToGet = shoeNumber - 1;
         }
         return intToGet;
     }
@@ -118,10 +118,11 @@ public class Menu {
         int nummer = scan.nextInt();
 
         try{
-            //Repository.addToCart(c.getId(), Repository.getActiveOrderId(c), nummer);
-            if (nummer <= 10 && nummer != 3) {
+            //if (nummer <= 10 && nummer != 3) {
+            if (nummer <= 10) {
+                Repository.addToCart(c.getId(), Repository.getActiveOrderId(c), nummer);
                 addToOrder(nummer);
-                System.out.println("Shoe added.");
+                //System.out.println("Shoe added.");
             } else {
                 System.out.println("No such shoe, try again...");
             }
