@@ -159,21 +159,15 @@ public class Repository {
                 properties.getProperty("connectionString"),
                 properties.getProperty("name"),
                 properties.getProperty("password"))) {
-            //con.setAutoCommit(false);
-            //Class.forName("com.mysql.cj.jdbc.Driver");
             CallableStatement pstmt = con.prepareCall("call addToCart(?, ?, ?)");
             pstmt.setInt(1, custid);
             pstmt.setInt(2, orderid);
             pstmt.setInt(3, shoeid);
-            //pstmt.executeUpdate();
             ResultSet rs = pstmt.executeQuery();
             while (rs != null && rs.next()) {
                 String message = rs.getString("MESSAGE");
                 System.out.println("Message: " + message + "\n");
             }
-            //con.commit();
-            //System.out.println(custid + " " + orderid + " " + shoeid);
-            //System.out.println("Shoe added to order");
         }catch(Exception e){
             e.printStackTrace();
         }

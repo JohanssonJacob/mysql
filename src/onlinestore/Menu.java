@@ -58,7 +58,6 @@ public class Menu {
                 shoeMenu();
             } else if (input == 2) {
                     printShoesInOrder();
-                //Repository.getActiveOrder(c).printAllShoes();
             } else if (input == 0) {
                 System.exit(0);
             } else {
@@ -118,11 +117,9 @@ public class Menu {
         int nummer = scan.nextInt();
 
         try{
-            //if (nummer <= 10 && nummer != 3) {
             if (nummer <= 10) {
                 Repository.addToCart(c.getId(), Repository.getActiveOrderId(c), nummer);
                 addToOrder(nummer);
-                //System.out.println("Shoe added.");
             } else {
                 System.out.println("No such shoe, try again...");
             }
