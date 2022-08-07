@@ -1,0 +1,309 @@
+DROP DATABASE IF EXISTS onlinebutik3;
+CREATE DATABASE onlinebutik3;
+USE onlinebutik3;
+SET sql_safe_updates = 0;
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+
+CREATE TABLE customer (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(50) NOT NULL,
+    password varchar(50) NOT NULL,
+    social_security_number VARCHAR(10) NOT NULL,
+    address VARCHAR(50) NOT NULL,
+    city VARCHAR(50)
+);
+
+CREATE TABLE shoe (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    shoe_name varchar(30),
+    price_sek DOUBLE,
+    stock INT default 10,
+    color varchar(50),
+    size INT,
+    fk_brand_id INT
+);
+
+
+CREATE TABLE category (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE brand (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    brand_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE shoe_category (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    fk_shoe_id INT,
+    fk_category_id INT
+);
+
+CREATE TABLE orders (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    fk_customer_id INT
+);
+
+CREATE TABLE order_specification (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    fk_orders_id INT,
+    fk_shoe_id INT,
+    shoe_price DOUBLE,
+    quantity INT
+);
+
+CREATE TABLE out_of_stock (
+id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+fk_shoe_id INT,
+date_out_of_stock DATE NOT NULL
+);
+
+ALTER TABLE shoe
+ADD FOREIGN KEY(fk_brand_id) REFERENCES brand(id) ON DELETE CASCADE;
+
+ALTER TABLE shoe_category
+ADD FOREIGN KEY (fk_shoe_id) REFERENCES shoe(id) ON DELETE SET NULL,
+ADD FOREIGN KEY (fk_category_id) REFERENCES category(id);
+
+ALTER TABLE orders
+ADD FOREIGN KEY (fk_customer_id) REFERENCES customer(id) ON DELETE SET NULL;
+
+ALTER TABLE order_specification
+ADD FOREIGN KEY (fk_orders_id) REFERENCES orders(id) ON DELETE SET NULL,
+ADD FOREIGN KEY (fk_shoe_id) REFERENCES shoe(id) ON DELETE SET NULL;
+
+ALTER TABLE out_of_stock
+ADD FOREIGN KEY (fk_shoe_id) REFERENCES shoe(id);
+
+
+
+INSERT INTO customer (full_name, password, social_security_number, address, city) VALUES
+('Jacob Johansson','123', '0112209036', 'Violvägen 4', 'uppsala'),
+('Anna Svensson','123', '7303047547', 'Bolandsgatan 32', 'malmö'),
+('Selma Gustafsson','123', '6206113554', 'Knektvägen 57', 'stockholm'),
+('Gabriel Nylander','123', '7806268939', 'Allégatan 21', 'uppsala'),
+('Robert Kohonen','123', '0108217019', 'Skjutbanevägen 19', 'göteborg'),
+('Sofia Jansson','123', '8112204576', 'Logbacken 18', 'gävle');
+
+INSERT INTO brand (brand_name) VALUES
+('adidas'),
+('nike'),
+('reebok'),
+('puma'),
+('new balance'),
+('converse'),
+('fila'),
+('ecco'),
+('asics'),
+('under armour');
+
+INSERT INTO shoe (shoe_name, price_sek, color, size, fk_brand_id) VALUES
+('ultra boost', '999', 'svart','45','1'),
+('air max', '1099', 'vit','42','2'),
+('classics', '699', 'blå','40','3'),
+('gazelle', '499', 'grön','37','4'),
+('574v2', '749', 'röd','43','5'),
+('chuck taylor', '999', 'flerfärgad','39','6'),
+('disruptor', '999', 'gul','35','7'),
+('exostr', '549', 'lila','37','8'),
+('gel-kayano', '999', 'rosa','44','9'),
+('hovr', '749', 'brun','37','10');
+
+INSERT INTO category (category_name) VALUES
+('sneaker'),
+('löparsko'),
+('stövlar'),
+('dam'),
+('barn'),
+('herr'),
+('slip-ons'),
+('sandal');
+
+INSERT INTO shoe_category(fk_shoe_id, fk_category_id) VALUES
+(1,1),(1,2),(1,6),
+(2,1),(2,6),
+(3,4),(3,5),
+(4,4),(4,2),
+(5,1),
+(6,1),
+(7,4),
+(8,1),(8,2),
+(9,1),(9,2),(9,4),(9,5),(9,6),(9,7),
+(10,1);
+
+INSERT INTO orders (id, date, fk_customer_id) VALUES (1,'2021-01-01', (SELECT id FROM customer WHERE id = 1));
+INSERT INTO orders (id, date, fk_customer_id) VALUES (2,'2021-02-02', (SELECT id FROM customer WHERE id = 1));
+
+INSERT INTO orders (id, date, fk_customer_id) VALUES (3,'2021-03-03', (SELECT id FROM customer WHERE id = 2));
+INSERT INTO orders (id, date, fk_customer_id) VALUES (4,'2021-04-04', (SELECT id FROM customer WHERE id = 2));
+
+INSERT INTO orders (id, date, fk_customer_id) VALUES (5,'2021-05-05', (SELECT id FROM customer WHERE id = 3));
+INSERT INTO orders (id, date, fk_customer_id) VALUES (6,'2021-06-06', (SELECT id FROM customer WHERE id = 3));
+
+INSERT INTO orders (id, date, fk_customer_id) VALUES (7, '2021-07-07', (SELECT id FROM customer WHERE id = 4));
+INSERT INTO orders (id, date, fk_customer_id) VALUES (8, '2021-08-08', (SELECT id FROM customer WHERE id = 4));
+
+INSERT INTO orders (id, date, fk_customer_id) VALUES (9, '2021-09-09', (SELECT id FROM customer WHERE id = 5));
+INSERT INTO orders (id, date, fk_customer_id) VALUES (10, '2021-09-09', (SELECT id FROM customer WHERE id = 5));
+
+INSERT INTO orders (id, date, fk_customer_id) VALUES (11, '2021-10-10', (SELECT id FROM customer WHERE id = 6));
+INSERT INTO orders (id, date, fk_customer_id) VALUES (12, '2021-11-11', (SELECT id FROM customer WHERE id = 6));
+
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) VALUES (1,1, (SELECT price_sek FROM shoe where id =1), 1);
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) VALUES (2,2, (SELECT price_sek FROM shoe where id =2), 1);
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) VALUES (3,3, (SELECT price_sek FROM shoe where id =3), 1);
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) VALUES (4,4, (SELECT price_sek FROM shoe where id =4), 1);
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) VALUES (5,5, (SELECT price_sek FROM shoe where id =5), 1);
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) VALUES (6,6, (SELECT price_sek FROM shoe where id =6), 1);
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) values (7,7, (select price_sek from shoe where id = 7), 1 );
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) values (8,8, (select price_sek from shoe where id = 8), 1 );
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) values (9,9, (select price_sek from shoe where id = 9), 1 );
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) values (10,10, (select price_sek from shoe where id = 10), 1 );
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) values (11,1, (select price_sek from shoe where id = 1), 1);
+INSERT INTO order_specification(fk_orders_id, fk_shoe_id, shoe_price, quantity) values (12,2, (select price_sek from shoe where id = 2), 1);
+
+
+DROP TRIGGER IF EXISTS out_of_stock;
+DELIMITER //
+CREATE TRIGGER out_of_stock
+AFTER UPDATE ON shoe
+FOR EACH ROW
+BEGIN
+	IF (NEW.stock = 0) THEN
+		INSERT INTO out_of_stock(fk_shoe_id, date_out_of_stock)
+        VALUES (OLD.id, CURRENT_DATE());
+	END IF;
+END //
+DELIMITER ;
+
+
+
+
+DROP FUNCTION IF EXISTS new_order;
+DELIMITER //
+CREATE FUNCTION new_order (customer_id INT)
+RETURNS INT
+BEGIN
+DECLARE new_order_id INT DEFAULT 0;
+	INSERT INTO orders (date, fk_customer_id) VALUES (CURRENT_DATE(), customer_id);
+        SET new_order_id = LAST_INSERT_ID();
+		 RETURN new_order_id;
+END//
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS customer_exists;
+DELIMITER //
+CREATE FUNCTION customer_exists(input_customer_id INT)
+RETURNS BOOLEAN
+BEGIN
+	DECLARE customer_exists BOOLEAN;
+	SELECT COUNT(*) INTO customer_exists
+	FROM customer WHERE customer.id = input_customer_id;
+RETURN customer_exists;
+END //
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS shoe_exists;
+DELIMITER //
+CREATE FUNCTION shoe_exists(input_shoe_id INT)
+RETURNS BOOLEAN
+BEGIN
+DECLARE shoe_exists BOOLEAN;
+SELECT COUNT(*) INTO shoe_exists
+FROM shoe WHERE shoe.id = input_shoe_id;
+RETURN shoe_exists;
+END //
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS  shoe_in_stock;
+DELIMITER //
+CREATE FUNCTION shoe_in_stock(input_shoe_id INT)
+RETURNS BOOLEAN
+BEGIN
+DECLARE shoe_in_stock BOOLEAN;
+SELECT SUM(stock) INTO shoe_in_stock
+FROM shoe WHERE shoe.id = input_shoe_id;
+RETURN shoe_in_stock;
+END //
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS current_order_exists;
+DELIMITER //
+CREATE FUNCTION current_order_exists(input_orders_id INT)
+RETURNS BOOLEAN
+BEGIN
+DECLARE order_exists BOOLEAN;
+SELECT COUNT(*) INTO order_exists
+FROM orders WHERE orders.id = input_orders_id;
+RETURN  order_exists;
+END //
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS is_shoe_in_current_order;
+DELIMITER //
+CREATE FUNCTION is_shoe_in_current_order(input_orders_id INT ,input_shoe_id INT)
+RETURNS BOOLEAN
+BEGIN
+DECLARE is_shoe_in_order BOOLEAN;
+SELECT COUNT(*) INTO is_shoe_in_order
+FROM order_specification WHERE fk_shoe_id = input_shoe_id AND fk_orders_id = input_orders_id;
+RETURN is_shoe_in_order;
+END //
+DELIMITER ;
+
+
+
+USE onlinebutik3;
+DROP PROCEDURE IF EXISTS addToCart;
+DELIMITER //
+CREATE PROCEDURE addToCart (orders_id INT, customer_id INT, shoe_id INT)
+add_to_cart: BEGIN
+DECLARE new_order_id INT;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+		ROLLBACK;
+        SELECT('SQLEXCEPTION, changes not saved') AS MESSAGE;
+END;
+START TRANSACTION;
+		
+		IF NOT customer_exists(customer_id) THEN
+			SELECT('Error: customer doesnt exist') AS MESSAGE;
+				LEAVE add_to_cart;
+		
+        ELSEIF NOT shoe_exists(shoe_id) THEN
+			SELECT('Error: shoe doesnt exist') AS MESSAGE;
+				LEAVE add_to_cart;
+		
+		ELSEIF shoe_in_stock(shoe_id) = 0 THEN
+			SELECT('Error: shoe not in stock') AS MESSAGE;
+				LEAVE add_to_cart;
+		ELSE
+			IF NOT current_order_exists(orders_id) THEN
+				INSERT INTO orders(fk_customer_id, date) VALUES (customer_id, CURRENT_DATE());
+					SET new_order_id = LAST_INSERT_ID();
+				INSERT INTO order_specification(fk_orders_id, fk_shoe_id, quantity, shoe_price)
+					VALUES (orders_id, shoe_id, 1,(SELECT price_sek FROM shoe WHERE shoe.id = shoe_id));
+				SELECT('Message: Shoe added to order') AS MESSAGE;
+            ELSE
+				IF is_shoe_in_current_order(orders_id, shoe_id) THEN
+					UPDATE order_specification SET quantity = (quantity) + 1
+						WHERE fk_orders_id = orders_id AND fk_shoe_id = shoe_id;
+				SELECT('Message: Shoe added to order') AS MESSAGE;
+				
+				ELSE
+					INSERT INTO order_specification(fk_orders_id, fk_shoe_id, quantity, shoe_price)
+						VALUES (orders_id, shoe_id, 1,(SELECT price_sek FROM shoe WHERE shoe.id = shoe_id));
+				SELECT('Message: Shoe added to order') AS MESSAGE;
+				END IF;
+			END IF;
+		END IF;
+
+	UPDATE shoe SET stock = (stock) -1
+		WHERE shoe.id = shoe_id;
+	SELECT('Removed 1 from stock');
+COMMIT;
+END //
+DELIMITER ;
